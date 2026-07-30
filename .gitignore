@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+
+node_modules/
+frontend/dist/
+
+data/workbench.db
+data/audio/
+data/exports/

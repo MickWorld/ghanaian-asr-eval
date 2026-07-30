@@ -1,0 +1,16 @@
+# Ghana ASR Workbench backend.
+# Everything runs on a normal PC (CPU). RunPod is optional — see docs/RUNPOD_SETUP.md.
+
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+httpx
+
+# Local inference (CPU). faster-whisper runs Whisper ~4x faster than the
+# reference implementation via CTranslate2 int8; MMS runs through transformers.
+faster-whisper
+torch
+transformers>=4.40
+librosa
+soundfile

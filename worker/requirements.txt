@@ -1,0 +1,6 @@
+runpod
+faster-whisper
+torch
+transformers>=4.40
+librosa
+soundfile

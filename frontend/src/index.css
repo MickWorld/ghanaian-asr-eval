@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Ghana ASR Workbench — committed dark theme.
+   Surfaces/ink follow the validated dataviz palette (dark column);
+   the gold accent is the kente-inspired brand color. */
+@theme {
+  --color-page: #0d0d0d;
+  --color-surface: #1a1a19;
+  --color-raised: #232321;
+  --color-ink: #ffffff;
+  --color-ink-2: #c3c2b7;
+  --color-muted: #898781;
+  --color-hairline: #2c2c2a;
+  --color-baseline: #383835;
+
+  --color-accent: #eda100;
+  --color-accent-deep: #c98500;
+
+  --color-series-1: #3987e5; /* whisper */
+  --color-series-2: #d95926; /* mms */
+  --color-series-3: #199e70;
+  --color-series-4: #c98500;
+
+  --color-good: #0ca30c;
+  --color-warning: #fab219;
+  --color-serious: #ec835a;
+  --color-critical: #d03b3b;
+
+  --color-twi: #3987e5;
+  --color-ewe: #199e70;
+  --color-cs: #d55181;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-page text-ink font-sans antialiased;
+  margin: 0;
+}
+
+::selection {
+  background: #c9850055;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #383835 transparent;
+}

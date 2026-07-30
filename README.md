@@ -265,3 +265,4 @@ Speaker of Twi and Ewe.
 [Portfolio](https://michael-tawiah-portfolio.vercel.app/) ·
 [GitHub](https://github.com/MickWorld)
 
+MIT licensed — see [LICENSE](LICENSE).

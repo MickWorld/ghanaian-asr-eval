@@ -20,7 +20,14 @@ import time
 
 import httpx
 
-from ..config import RUNPOD_API_KEY, RUNPOD_BASE_URL, RUNPOD_ENDPOINT_ID, RUNPOD_JOB_TIMEOUT
+from ..config import (
+    RUNPOD_API_KEY,
+    RUNPOD_BASE_URL,
+    RUNPOD_JOB_TIMEOUT,
+    RUNPOD_MMS_ENDPOINT_ID,
+    RUNPOD_WHISPER_ENDPOINT_ID,
+    RUNPOD_WHISPER_WORKER,
+)
 
 MMS_ADAPTERS = {"twi": "aka", "ewe": "ewe", "cs": "aka"}
 
@@ -52,7 +59,11 @@ def engine_status() -> dict:
     except ImportError:
         pass
     return {
-        "runpod_configured": bool(RUNPOD_API_KEY and RUNPOD_ENDPOINT_ID),
+        "runpod_configured": bool(
+            RUNPOD_API_KEY and (RUNPOD_WHISPER_ENDPOINT_ID or RUNPOD_MMS_ENDPOINT_ID)
+        ),
+        "runpod_whisper": bool(RUNPOD_API_KEY and RUNPOD_WHISPER_ENDPOINT_ID),
+        "runpod_mms": bool(RUNPOD_API_KEY and RUNPOD_MMS_ENDPOINT_ID),
         "local_whisper": local_whisper,
         "local_mms": local_mms,
     }
@@ -61,21 +72,45 @@ def engine_status() -> dict:
 # ---------------------------------------------------------------- RunPod ----
 
 def _transcribe_runpod(system: str, model: str, wav_path, language_group: str) -> dict:
-    if not (RUNPOD_API_KEY and RUNPOD_ENDPOINT_ID):
-        raise EngineError(
-            "RunPod is not configured. Set RUNPOD_API_KEY and RUNPOD_ENDPOINT_ID "
-            "in the .env file (see docs/RUNPOD_SETUP.md)."
-        )
-    payload = {
-        "input": {
-            "task": system,
-            "model": model,
-            "audio_b64": base64.b64encode(wav_path.read_bytes()).decode(),
+    """Route to the right endpoint + payload shape for the system under test."""
+    if not RUNPOD_API_KEY:
+        raise EngineError("RunPod is not configured. Set RUNPOD_API_KEY in .env.")
+    audio_b64 = base64.b64encode(wav_path.read_bytes()).decode()
+
+    if system == "whisper":
+        if not RUNPOD_WHISPER_ENDPOINT_ID:
+            raise EngineError("No Whisper endpoint. Set RUNPOD_ENDPOINT_ID in .env.")
+        if RUNPOD_WHISPER_WORKER == "faster-whisper":
+            # Official RunPod Hub worker: runpod-workers/worker-faster_whisper
+            payload = {"input": {"audio_base64": audio_b64, "model": model}}
+            output = _submit_and_wait(RUNPOD_WHISPER_ENDPOINT_ID, payload)
+            return _parse_faster_whisper(output)
+        # Our custom worker (worker/handler.py)
+        payload = {"input": {"task": "whisper", "model": model, "audio_b64": audio_b64}}
+        output = _submit_and_wait(RUNPOD_WHISPER_ENDPOINT_ID, payload)
+        return _parse_custom(output)
+
+    if system == "mms":
+        if not RUNPOD_MMS_ENDPOINT_ID:
+            raise EngineError(
+                "No RunPod endpoint for MMS. MMS needs the aka/ewe adapters, which "
+                "only this repo's custom worker supports (see docs/RUNPOD_SETUP.md) - "
+                "or simply run MMS on the Local CPU engine."
+            )
+        payload = {"input": {
+            "task": "mms", "audio_b64": audio_b64,
             "adapter": MMS_ADAPTERS.get(language_group, "aka"),
-        }
-    }
+        }}
+        output = _submit_and_wait(RUNPOD_MMS_ENDPOINT_ID, payload)
+        return _parse_custom(output)
+
+    raise EngineError(f"Unknown system '{system}'")
+
+
+def _submit_and_wait(endpoint_id: str, payload: dict) -> dict:
+    """POST /run then poll /status until the job resolves. Returns the output."""
     headers = {"Authorization": f"Bearer {RUNPOD_API_KEY}"}
-    base = f"{RUNPOD_BASE_URL}/{RUNPOD_ENDPOINT_ID}"
+    base = f"{RUNPOD_BASE_URL}/{endpoint_id}"
 
     with httpx.Client(timeout=60) as client:
         resp = client.post(f"{base}/run", json=payload, headers=headers)
@@ -94,14 +129,32 @@ def _transcribe_runpod(system: str, model: str, wav_path, language_group: str) -
             data = status.json()
             state = data.get("status")
             if state == "COMPLETED":
-                output = data.get("output") or {}
-                if "error" in output:
-                    raise EngineError(f"Worker error: {output['error']}")
-                return {"text": output.get("text", ""), "meta": output.get("meta", "")}
+                output = data.get("output")
+                if isinstance(output, dict) and "error" in output:
+                    raise EngineError(f"Worker error: {str(output['error'])[:300]}")
+                return output if isinstance(output, dict) else {"text": str(output or "")}
             if state in ("FAILED", "CANCELLED", "TIMED_OUT"):
                 raise EngineError(f"RunPod job {state}: {str(data.get('error'))[:300]}")
         client.post(f"{base}/cancel/{job_id}", headers=headers)
-    raise EngineError(f"RunPod job timed out after {RUNPOD_JOB_TIMEOUT}s (cold start too slow?)")
+    raise EngineError(
+        f"RunPod job timed out after {RUNPOD_JOB_TIMEOUT}s. If workers show "
+        "'throttled' on the endpoint page, enable more GPU types."
+    )
+
+
+def _parse_faster_whisper(output: dict) -> dict:
+    """Output of the official worker: transcription + detected_language (+segments)."""
+    text = (output.get("transcription") or "").strip()
+    if not text and isinstance(output.get("segments"), list):
+        text = " ".join(
+            (s.get("text") or "").strip() for s in output["segments"]
+        ).strip()
+    detected = output.get("detected_language") or "?"
+    return {"text": text, "meta": f"detected:{detected}"}
+
+
+def _parse_custom(output: dict) -> dict:
+    return {"text": output.get("text", ""), "meta": output.get("meta", "")}
 
 
 # ----------------------------------------------------------------- Local ----

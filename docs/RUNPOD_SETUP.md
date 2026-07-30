@@ -2,7 +2,7 @@
 
 The workbench runs fully on your PC's CPU. Use RunPod when you want
 **Whisper large-v3** (much better on low-resource/accented speech) or faster
-MMS runs. Serverless billing is per-second — evaluating ~30 short clips
+MMS runs. Serverless billing is per-second   evaluating ~30 short clips
 typically costs **well under $1**.
 
 You need: a [runpod.io](https://www.runpod.io) account, ~$10 credit, and a
@@ -32,7 +32,7 @@ docker push YOUR_DOCKERHUB_USER/ghana-asr-worker:v1
 4. Workers: min **0** (scale to zero = pay nothing while idle), max **3**
    (the backend sends up to 4 clips in parallel).
 5. Container disk: **25 GB** (the image holds both models).
-6. Idle timeout: 60s or more — keeps the worker warm between clips of a run.
+6. Idle timeout: 60s or more   keeps the worker warm between clips of a run.
 7. Create, then copy the **Endpoint ID** from the endpoint page.
 
 ## 3. Get an API key
@@ -59,15 +59,15 @@ takes ~1–3 min (cold start pulls the worker up); after that, seconds per clip.
   time ≈ **$0.10–0.50**, plus cold starts.
 - Set max workers to 1 if you prefer slower-but-cheapest sequential runs.
 - Your Docker Hub image is public by default; it contains only open models
-  and this repo's handler — no secrets. Keep your API key only in `.env`.
+  and this repo's handler   no secrets. Keep your API key only in `.env`.
 
 ## Troubleshooting
 
-- **Job stuck IN_QUEUE then times out** — endpoint has 0 max workers, no
+- **Job stuck IN_QUEUE then times out**   endpoint has 0 max workers, no
   GPUs of the chosen type available, or the image failed to pull (check the
   endpoint's Logs tab).
-- **`Worker error: ...` in the UI** — the handler returned an error; the exact
+- **`Worker error: ...` in the UI**   the handler returned an error; the exact
   message is stored on the failed clip in the Runs page. CUDA OOM → pick a
   bigger GPU or set Whisper model to `medium`.
-- **First clip slow, rest fast** — normal: model load on cold start. Raise
+- **First clip slow, rest fast**   normal: model load on cold start. Raise
   idle timeout to keep workers warm during a run.

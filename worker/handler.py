@@ -80,7 +80,7 @@ def handler(job):
         if task == "whisper":
             return _whisper(inp.get("model") or "large-v3", wav_path)
         return _mms(inp.get("adapter") or "aka", wav_path)
-    except Exception as exc:  # noqa: BLE001 — report anything to the caller
+    except Exception as exc:  # noqa: BLE001   report anything to the caller
         return {"error": f"{type(exc).__name__}: {exc}"}
 
 

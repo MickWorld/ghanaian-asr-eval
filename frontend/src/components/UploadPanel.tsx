@@ -65,7 +65,7 @@ export default function UploadPanel({
           <path d="M12 3l4 4h-3v7h-2V7H8l4-4zM5 18h14v2H5v-2z" />
         </svg>
         <p className="text-sm text-ink-2">
-          Already have recordings? <span className="text-accent">Drop audio files here</span> or click to browse
+          Already have recordings? <span className="text-link">Drop audio files here</span> or click to browse
         </p>
         <p className="text-xs text-muted">
           m4a, mp3, wav, ogg, voice notes… added as <b>{LANGUAGE_LABEL[language]}</b> clips
@@ -96,7 +96,7 @@ export default function UploadPanel({
           {!busy && files.some((f) => f.state === "done") && (
             <li className="pt-1 text-xs text-muted">
               Uploaded clips need reference transcripts, type them on the{" "}
-              <a href="/clips" className="text-accent underline-offset-2 hover:underline">Clips page</a>.
+              <a href="/clips" className="text-link underline-offset-2 hover:underline">Clips page</a>.
             </li>
           )}
         </ul>

@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
-import { Button, Card, EmptyState, PageHeader, Spinner } from "../components/ui";
+import { Button, Card, EmptyState, MetaBadge, PageHeader, Spinner } from "../components/ui";
 import type { EngineStatus, Run, RunDetail } from "../types";
 
 const WHISPER_MODELS = ["tiny", "base", "small", "medium", "large-v3"];
 
 const STATUS_STYLE: Record<Run["status"], string> = {
   queued: "text-muted border-baseline",
-  running: "text-accent border-accent/40",
+  running: "text-link border-accent/40",
   done: "text-good border-good/40",
   failed: "text-critical border-critical/40",
   cancelled: "text-muted border-baseline",
@@ -46,7 +46,12 @@ export default function RunsPage({ engines }: { engines: EngineStatus | null }) 
   }, [openRun]);
 
   const localAvailable = system === "whisper" ? !!engines?.local_whisper : !!engines?.local_mms;
-  const runpodAvailable = !!engines?.runpod_configured;
+  const runpodAvailable = system === "whisper" ? !!engines?.runpod_whisper : !!engines?.runpod_mms;
+
+  // Don't leave an unavailable engine selected when the system changes.
+  useEffect(() => {
+    if (engine === "runpod" && !runpodAvailable) setEngine("local");
+  }, [engine, runpodAvailable]);
 
   const launch = async () => {
     setLaunching(true);
@@ -133,7 +138,10 @@ export default function RunsPage({ engines }: { engines: EngineStatus | null }) 
                 type="button"
                 onClick={() => runpodAvailable && setEngine("runpod")}
                 disabled={!runpodAvailable}
-                title={runpodAvailable ? "" : "Set RUNPOD_API_KEY and RUNPOD_ENDPOINT_ID in .env   see docs/RUNPOD_SETUP.md"}
+                title={runpodAvailable ? ""
+                  : system === "mms"
+                    ? "MMS on RunPod needs this repo's custom worker (adapter switching). Set RUNPOD_MMS_ENDPOINT_ID in .env, or run MMS locally."
+                    : "Set RUNPOD_API_KEY and RUNPOD_ENDPOINT_ID in .env, see docs/RUNPOD_SETUP.md"}
                 className={`rounded-lg border px-4 py-2 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                   engine === "runpod" ? "border-accent bg-accent/10 text-ink" : "border-hairline text-ink-2 hover:border-baseline"
                 }`}
@@ -212,7 +220,7 @@ export default function RunsPage({ engines }: { engines: EngineStatus | null }) 
                         </Button>
                       )}
                       {run.status === "done" && (
-                        <Link to={`/results?run=${run.id}`} className="rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-page hover:bg-accent-deep">
+                        <Link to={`/results?run=${run.id}`} className="rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-on-accent hover:bg-accent-deep">
                           View results →
                         </Link>
                       )}
@@ -240,7 +248,7 @@ export default function RunsPage({ engines }: { engines: EngineStatus | null }) 
                                 {it.status === "failed"
                                   ? <span className="text-xs text-critical/80">{it.error}</span>
                                   : it.hypothesis || <span className="text-muted"> </span>}
-                                {it.meta && <span className="ml-2 text-xs text-muted">({it.meta})</span>}
+                                {it.meta && <span className="ml-2 inline-flex align-middle"><MetaBadge meta={it.meta} /></span>}
                               </td>
                             </tr>
                           ))}

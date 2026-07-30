@@ -75,7 +75,7 @@ export default function ClipsPage() {
             key={ch}
             type="button"
             onMouseDown={(e) => { e.preventDefault(); insertChar(ch); }}
-            className="h-8 w-8 rounded-lg border border-hairline bg-page text-sm text-ink-2 hover:border-accent hover:text-accent"
+            className="h-8 w-8 rounded-lg border border-hairline bg-page text-sm text-ink-2 hover:border-accent hover:text-link"
           >
             {ch}
           </button>
@@ -136,7 +136,7 @@ export default function ClipsPage() {
       {clips.length > 0 && missing === 0 && (
         <p className="mt-6 rounded-lg border border-good/30 bg-good/5 px-4 py-3 text-sm text-ink-2">
           References complete   you can now launch an evaluation on the{" "}
-          <a href="/runs" className="text-accent underline-offset-2 hover:underline">Runs page</a>.
+          <a href="/runs" className="text-link underline-offset-2 hover:underline">Runs page</a>.
         </p>
       )}
       <div className="mt-4 flex justify-end">

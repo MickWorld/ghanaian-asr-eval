@@ -95,6 +95,8 @@ export interface Comparisons {
 
 export interface EngineStatus {
   runpod_configured: boolean;
+  runpod_whisper: boolean;
+  runpod_mms: boolean;
   local_whisper: boolean;
   local_mms: boolean;
 }

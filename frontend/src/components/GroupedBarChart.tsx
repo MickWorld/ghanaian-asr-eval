@@ -58,14 +58,17 @@ export default function GroupedBarChart({
         {/* gridlines + tick labels */}
         {ticks.map((t) => (
           <g key={t}>
-            <line x1={M.left} x2={W - M.right} y1={y(t)} y2={y(t)} stroke="#2c2c2a" strokeWidth={t === 0 ? 0 : 1} />
-            <text x={M.left - 8} y={y(t) + 3.5} textAnchor="end" fontSize={11} fill="#898781">
+            <line
+              x1={M.left} x2={W - M.right} y1={y(t)} y2={y(t)}
+              className="stroke-hairline" strokeWidth={t === 0 ? 0 : 1}
+            />
+            <text x={M.left - 8} y={y(t) + 3.5} textAnchor="end" fontSize={11} className="fill-muted">
               {(t * 100).toFixed(0)}%
             </text>
           </g>
         ))}
         {/* baseline */}
-        <line x1={M.left} x2={W - M.right} y1={y(0)} y2={y(0)} stroke="#383835" strokeWidth={1} />
+        <line x1={M.left} x2={W - M.right} y1={y(0)} y2={y(0)} className="stroke-baseline" strokeWidth={1} />
 
         {groups.map((g, gi) => {
           const cx = M.left + groupW * gi + groupW / 2;
@@ -96,7 +99,7 @@ export default function GroupedBarChart({
                   </g>
                 );
               })}
-              <text x={cx} y={H - 8} textAnchor="middle" fontSize={11.5} fill="#898781">{g.label}</text>
+              <text x={cx} y={H - 8} textAnchor="middle" fontSize={11.5} className="fill-muted">{g.label}</text>
             </g>
           );
         })}

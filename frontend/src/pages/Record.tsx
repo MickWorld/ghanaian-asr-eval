@@ -145,7 +145,7 @@ export default function RecordPage() {
           </Card>
         ) : (
           byTab.length > 0 && (
-            <button type="button" onClick={() => setAdding(true)} className="text-sm text-muted hover:text-accent">
+            <button type="button" onClick={() => setAdding(true)} className="text-sm text-muted hover:text-link">
               + Add another topic
             </button>
           )
@@ -157,7 +157,7 @@ export default function RecordPage() {
       {doneCount === byTab.length && byTab.length > 0 && (
         <p className="mt-6 rounded-lg border border-good/30 bg-good/5 px-4 py-3 text-sm text-ink-2">
           All {LANGUAGE_LABEL[tab]} prompts recorded   next, type the references on the{" "}
-          <a href="/clips" className="text-accent underline-offset-2 hover:underline">Clips page</a>.
+          <a href="/clips" className="text-link underline-offset-2 hover:underline">Clips page</a>.
         </p>
       )}
 

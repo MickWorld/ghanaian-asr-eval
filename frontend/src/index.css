@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
-/* Ghana ASR Workbench   committed dark theme.
-   Surfaces/ink follow the validated dataviz palette (dark column);
-   the gold accent is the kente-inspired brand color. */
+/* Ghana ASR Workbench theme.
+   Dark is the default; light is a *selected* counterpart — each mode's
+   colours are stepped against that mode's own surface and validated, not
+   flipped automatically. Utilities read these variables, so overriding them
+   under [data-theme="light"] re-themes the whole app.
+
+   Token roles:
+     accent      brand gold, for backgrounds and marks
+     link        text-safe accent (gold is unreadable as text on white)
+     on-accent   ink placed on top of an accent-filled surface
+     good/warning/critical  status colours, stepped for text contrast per mode */
 @theme {
   --color-page: #0d0d0d;
   --color-surface: #1a1a19;
@@ -15,6 +23,8 @@
 
   --color-accent: #eda100;
   --color-accent-deep: #c98500;
+  --color-link: #eda100;
+  --color-on-accent: #0d0d0d;
 
   --color-series-1: #3987e5; /* whisper */
   --color-series-2: #d95926; /* mms */
@@ -33,8 +43,43 @@
   --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-html {
+/* Light mode. Categorical slots pass the CVD and normal-vision gates on
+   #fcfcfb; status/link colours are darkened to clear WCAG AA as text. */
+:root[data-theme="light"] {
+  --color-page: #f9f9f7;
+  --color-surface: #fcfcfb;
+  --color-raised: #f0efec;
+  --color-ink: #0b0b0b;
+  --color-ink-2: #52514e;
+  --color-muted: #6f6e69;
+  --color-hairline: #e1e0d9;
+  --color-baseline: #c3c2b7;
+
+  --color-accent: #eda100;
+  --color-accent-deep: #c98500;
+  --color-link: #8a6100;
+  --color-on-accent: #0b0b0b;
+
+  --color-series-1: #2a78d6;
+  --color-series-2: #eb6834;
+  --color-series-3: #1baf7a;
+  --color-series-4: #eda100;
+
+  --color-good: #006300;
+  --color-warning: #8a5a00;
+  --color-serious: #b4551f;
+  --color-critical: #c22b2b;
+
+  --color-twi: #2a78d6;
+  --color-ewe: #1baf7a;
+  --color-cs: #c2497a;
+}
+
+:root[data-theme="dark"] {
   color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
 body {
@@ -43,12 +88,12 @@ body {
 }
 
 ::selection {
-  background: #c9850055;
+  background: #eda10044;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #383835 transparent;
+  scrollbar-color: var(--color-baseline) transparent;
 }
 
 /* Gentle page entrance */
@@ -60,17 +105,15 @@ body {
   animation: page-in 0.25s ease-out both;
 }
 
-/* Native audio controls: keep them dark and compact */
 audio {
-  color-scheme: dark;
   border-radius: 9999px;
 }
-audio::-webkit-media-controls-panel {
+:root[data-theme="dark"] audio::-webkit-media-controls-panel {
   background: #232321;
 }
 
-/* Keyboard focus is always visible, in brand gold */
+/* Keyboard focus is always visible, in the mode's readable accent */
 :focus-visible {
-  outline: 2px solid #eda100;
+  outline: 2px solid var(--color-link);
   outline-offset: 2px;
 }

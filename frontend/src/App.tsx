@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { api } from "./api";
+import { useTheme } from "./theme";
 import type { EngineStatus } from "./types";
 import RecordPage from "./pages/Record";
 import ClipsPage from "./pages/Clips";
@@ -39,9 +40,12 @@ export default function App() {
           <div className="flex-1 bg-accent" />
           <div className="flex-1 bg-good" />
         </div>
-        <div className="px-5 pb-2 pt-5">
-          <p className="text-[15px] font-semibold leading-tight">Ghana ASR Workbench</p>
-          <p className="mt-0.5 text-xs text-muted">Twi · Ewe · code-switch evaluation</p>
+        <div className="flex items-start justify-between gap-2 px-5 pb-2 pt-5">
+          <div>
+            <p className="text-[15px] font-semibold leading-tight">Ghana ASR Workbench</p>
+            <p className="mt-0.5 text-xs text-muted">Twi · Ewe · code-switch evaluation</p>
+          </div>
+          <ThemeToggle />
         </div>
         <nav className="mt-3 flex flex-col gap-1 px-3">
           {NAV.map((n) => (
@@ -87,6 +91,30 @@ export default function App() {
         </div>
       </main>
     </div>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === "dark";
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      className="-mr-1 shrink-0 rounded-lg border border-hairline p-1.5 text-muted transition-colors hover:border-baseline hover:text-ink"
+    >
+      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
+        {isDark ? (
+          /* sun */
+          <path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-13.5a1 1 0 0 1 1 1V6a1 1 0 1 1-2 0V4.5a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1V21a1 1 0 1 1-2 0v-1.5a1 1 0 0 1 1-1zM3.5 12a1 1 0 0 1 1-1H6a1 1 0 1 1 0 2H4.5a1 1 0 0 1-1-1zm14.5 0a1 1 0 0 1 1-1h1.5a1 1 0 1 1 0 2H19a1 1 0 0 1-1-1zM5.6 5.6a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4L5.6 7a1 1 0 0 1 0-1.4zm10.3 10.3a1 1 0 0 1 1.4 0l1.1 1.1a1 1 0 0 1-1.4 1.4l-1.1-1.1a1 1 0 0 1 0-1.4zm2.5-10.3a1 1 0 0 1 0 1.4L17.3 8.1a1 1 0 1 1-1.4-1.4L17 5.6a1 1 0 0 1 1.4 0zM8.1 15.9a1 1 0 0 1 0 1.4L7 18.4A1 1 0 0 1 5.6 17l1.1-1.1a1 1 0 0 1 1.4 0z" />
+        ) : (
+          /* moon */
+          <path d="M21.6 13.3A9 9 0 1 1 10.7 2.4a7 7 0 0 0 10.9 10.9z" />
+        )}
+      </svg>
+    </button>
   );
 }
 

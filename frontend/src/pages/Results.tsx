@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import GroupedBarChart, { type BarSeries } from "../components/GroupedBarChart";
-import { Button, Card, EmptyState, LangChip, PageHeader, Spinner, pct } from "../components/ui";
+import { Button, Card, EmptyState, LangChip, MetaBadge, PageHeader, RateChip, Spinner, pct } from "../components/ui";
+import { CHART_SLOTS, useTheme } from "../theme";
 import type { AlignOp, Comparisons, Language, SummaryRow } from "../types";
 import { LANGUAGE_LABEL } from "../types";
 
-/* Fixed categorical slots (dark-mode validated). Whisper prefers blue,
-   MMS prefers orange; extra runs take the next free slot   color follows
-   the run, never its position in a filtered view. */
-const SLOTS = ["#3987e5", "#d95926", "#199e70", "#c98500"];
+/* Categorical slots come from theme.ts, stepped per mode. Whisper prefers
+   blue, MMS prefers orange; extra runs take the next free slot - colour
+   follows the run, never its position in a filtered view. */
 
 const LANG_ORDER = ["twi", "ewe", "cs", "all"];
 const LANG_CHART_LABEL: Record<string, string> = {
@@ -31,6 +31,8 @@ export default function ResultsPage() {
   const [compLoading, setCompLoading] = useState(false);
   const [langFilter, setLangFilter] = useState<Language | "all">("all");
   const [exportMsg, setExportMsg] = useState("");
+  const { theme } = useTheme();
+  const SLOTS = CHART_SLOTS[theme];
 
   const load = useCallback(() => { api.summary().then(setSummary).catch(() => setSummary([])); }, []);
   useEffect(load, [load]);
@@ -49,7 +51,7 @@ export default function ResultsPage() {
       const name = r.system === "whisper" ? `Whisper ${r.model}` : "MMS 1b-all";
       return { run_id: r.run_id, label: `${name} · ${r.engine} · #${r.run_id}`, color };
     });
-  }, [summary]);
+  }, [summary, SLOTS]);
 
   // Default selection: latest 4 runs (or the ?run= param's run).
   useEffect(() => {
@@ -59,8 +61,13 @@ export default function ResultsPage() {
     setSelected(fromUrl && ids.includes(fromUrl) ? [fromUrl] : ids.slice(-4));
   }, [runMetas, selected.length, params]);
 
-  // Diff explorer follows ?run= or the first selected run.
-  const compRunId = Number(params.get("run")) || selected[0];
+  // Diff explorer follows ?run= when that run still exists, else the first
+  // selected run. (A deleted run left in the URL would otherwise show an
+  // empty explorer while the dropdown displayed a different run.)
+  const urlRun = Number(params.get("run"));
+  const compRunId = runMetas.some((r) => r.run_id === urlRun)
+    ? urlRun
+    : selected[0] ?? runMetas[runMetas.length - 1]?.run_id;
   useEffect(() => {
     if (!compRunId) return;
     setCompLoading(true);
@@ -262,11 +269,12 @@ export default function ResultsPage() {
               .sort((a, b) => b.wer - a.wer)
               .map((c) => (
                 <div key={c.clip_id} className="rounded-xl border border-hairline bg-page/50 p-4">
-                  <div className="mb-2 flex flex-wrap items-center gap-3">
-                    <code className="text-xs text-ink-2">{c.filename}</code>
+                  <div className="mb-2.5 flex flex-wrap items-center gap-2">
+                    <code className="mr-1 text-xs text-ink-2">{c.filename}</code>
                     <LangChip lang={c.language} />
-                    <span className="text-xs tabular-nums text-muted">WER {pct(c.wer)} · CER {pct(c.cer)}</span>
-                    {c.meta && <span className="text-xs text-muted">{c.meta}</span>}
+                    <RateChip label="WER" value={c.wer} />
+                    <RateChip label="CER" value={c.cer} />
+                    <MetaBadge meta={c.meta} />
                     <audio src={api.clipAudioUrl(c.clip_id)} controls preload="none" className="ml-auto h-8 w-56" />
                   </div>
                   <DiffLine ops={c.ops} />

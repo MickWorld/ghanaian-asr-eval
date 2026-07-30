@@ -73,7 +73,9 @@ export default function Recorder({
           const { width, height } = canvas;
           analyser.getByteTimeDomainData(data);
           g.clearRect(0, 0, width, height);
-          g.strokeStyle = "#eda100";
+          g.strokeStyle =
+            getComputedStyle(document.documentElement).getPropertyValue("--color-link").trim()
+            || "#eda100";
           g.lineWidth = 2;
           g.beginPath();
           const step = width / data.length;

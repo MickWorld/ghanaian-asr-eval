@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, Route, Routes } from "react-router-dom";
+import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { api } from "./api";
 import type { EngineStatus } from "./types";
 import RecordPage from "./pages/Record";
@@ -17,6 +17,7 @@ const NAV = [
 export default function App() {
   const [engines, setEngines] = useState<EngineStatus | null>(null);
   const [backendUp, setBackendUp] = useState<boolean | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
     let alive = true;
@@ -49,15 +50,22 @@ export default function App() {
               to={n.to}
               end={n.to === "/"}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                `relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                   isActive ? "bg-raised text-ink" : "text-ink-2 hover:bg-raised/60 hover:text-ink"
                 }`
               }
             >
-              <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-current opacity-80">
-                <path d={n.icon} />
-              </svg>
-              {n.label}
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-accent" />
+                  )}
+                  <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-current opacity-80">
+                    <path d={n.icon} />
+                  </svg>
+                  {n.label}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -69,7 +77,7 @@ export default function App() {
       </aside>
 
       <main className="ml-60 min-w-0 flex-1 px-8 py-8">
-        <div className="mx-auto max-w-5xl">
+        <div key={location.pathname} className="page-in mx-auto max-w-5xl">
           <Routes>
             <Route path="/" element={<RecordPage />} />
             <Route path="/clips" element={<ClipsPage />} />

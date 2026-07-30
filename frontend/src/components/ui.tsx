@@ -34,7 +34,7 @@ export function Button({
       title={title}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-lg px-3.5 py-2 text-sm transition-colors disabled:cursor-not-allowed ${styles} ${className}`}
+      className={`rounded-lg px-3.5 py-2 text-sm transition-all active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed ${styles} ${className}`}
     >
       {children}
     </button>
@@ -88,6 +88,6 @@ export function PageHeader({ title, sub, right }: { title: string; sub?: string;
 }
 
 export function pct(v: number | null | undefined): string {
-  if (v == null) return " ";
+  if (v == null) return "–";
   return `${(v * 100).toFixed(1)}%`;
 }

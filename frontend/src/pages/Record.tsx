@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import Recorder from "../components/Recorder";
+import UploadPanel from "../components/UploadPanel";
 import { Button, Card, EmptyState, PageHeader, Spinner } from "../components/ui";
 import type { Language, Prompt } from "../types";
 import { LANGUAGE_LABEL } from "../types";
@@ -51,7 +52,7 @@ export default function RecordPage() {
     <>
       <PageHeader
         title="Record"
-        sub="Speak a natural sentence for each topic, in your own words. You'll type exactly what you said afterwards, on the Clips page."
+        sub="Speak a natural sentence for each topic, in your own words, or upload recordings you already have. You'll type exactly what was said afterwards, on the Clips page."
         right={<Button variant="ghost" onClick={() => setRecording("free")}>+ Free recording</Button>}
       />
 
@@ -86,7 +87,7 @@ export default function RecordPage() {
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {byTab.map((p) => (
-            <Card key={p.id} className={`p-4 ${p.recorded_clip_id ? "opacity-70" : ""}`}>
+            <Card key={p.id} className={`p-4 transition-colors hover:border-baseline ${p.recorded_clip_id ? "opacity-70" : ""}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   {p.category && (
@@ -150,6 +151,8 @@ export default function RecordPage() {
           )
         )}
       </div>
+
+      <UploadPanel language={tab} onUploaded={load} />
 
       {doneCount === byTab.length && byTab.length > 0 && (
         <p className="mt-6 rounded-lg border border-good/30 bg-good/5 px-4 py-3 text-sm text-ink-2">

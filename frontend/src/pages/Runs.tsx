@@ -133,7 +133,7 @@ export default function RunsPage({ engines }: { engines: EngineStatus | null }) 
                 type="button"
                 onClick={() => runpodAvailable && setEngine("runpod")}
                 disabled={!runpodAvailable}
-                title={runpodAvailable ? "" : "Set RUNPOD_API_KEY and RUNPOD_ENDPOINT_ID in .env — see docs/RUNPOD_SETUP.md"}
+                title={runpodAvailable ? "" : "Set RUNPOD_API_KEY and RUNPOD_ENDPOINT_ID in .env   see docs/RUNPOD_SETUP.md"}
                 className={`rounded-lg border px-4 py-2 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                   engine === "runpod" ? "border-accent bg-accent/10 text-ink" : "border-hairline text-ink-2 hover:border-baseline"
                 }`}
@@ -239,7 +239,7 @@ export default function RunsPage({ engines }: { engines: EngineStatus | null }) 
                               <td className="py-1.5 text-ink-2">
                                 {it.status === "failed"
                                   ? <span className="text-xs text-critical/80">{it.error}</span>
-                                  : it.hypothesis || <span className="text-muted">—</span>}
+                                  : it.hypothesis || <span className="text-muted"> </span>}
                                 {it.meta && <span className="ml-2 text-xs text-muted">({it.meta})</span>}
                               </td>
                             </tr>

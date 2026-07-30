@@ -43,7 +43,7 @@ export default function GroupedBarChart({
 
   return (
     <div className="relative">
-      {/* Legend — always present for ≥2 series */}
+      {/* Legend   always present for ≥2 series */}
       {series.length >= 2 && (
         <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1">
           {series.map((s) => (

@@ -7,7 +7,7 @@ import type { AlignOp, Comparisons, Language, SummaryRow } from "../types";
 import { LANGUAGE_LABEL } from "../types";
 
 /* Fixed categorical slots (dark-mode validated). Whisper prefers blue,
-   MMS prefers orange; extra runs take the next free slot — color follows
+   MMS prefers orange; extra runs take the next free slot   color follows
    the run, never its position in a filtered view. */
 const SLOTS = ["#3987e5", "#d95926", "#199e70", "#c98500"];
 
@@ -130,8 +130,8 @@ export default function ResultsPage() {
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {tiles.map(({ lang, best }) => (
           <Card key={lang} className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">{LANGUAGE_LABEL[lang]} — best WER</p>
-            <p className="mt-1 text-3xl font-semibold">{best ? pct(best.wer) : "—"}</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted">{LANGUAGE_LABEL[lang]}   best WER</p>
+            <p className="mt-1 text-3xl font-semibold">{best ? pct(best.wer) : " "}</p>
             {best && (
               <p className="mt-1 text-xs text-muted">
                 {best.system === "whisper" ? `Whisper ${best.model}` : "MMS 1b-all"} · {best.clips} clips
@@ -174,7 +174,7 @@ export default function ResultsPage() {
                   className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors ${
                     on ? "border-baseline bg-raised text-ink" : "border-hairline text-muted hover:text-ink-2"
                   }`}
-                  title={selected.length >= 4 && !on ? "Up to 4 runs at once — deselect one first" : ""}
+                  title={selected.length >= 4 && !on ? "Up to 4 runs at once   deselect one first" : ""}
                 >
                   <span className="h-2 w-2 rounded-sm" style={{ background: on ? r.color : "#383835" }} />
                   {r.label}

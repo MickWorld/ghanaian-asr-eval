@@ -95,7 +95,7 @@ export default function Recorder({
       draw();
     } catch (e) {
       setError(e instanceof Error && e.name === "NotAllowedError"
-        ? "Microphone access denied — allow it in the browser and try again."
+        ? "Microphone access denied   allow it in the browser and try again."
         : `Could not start recording: ${e}`);
     }
   };
@@ -148,11 +148,11 @@ export default function Recorder({
           ) : phase === "preview" && previewUrl ? (
             <div className="space-y-2">
               <audio src={previewUrl} controls className="w-full" />
-              <p className="text-xs text-muted">Listen back — keep it only if the take is clean.</p>
+              <p className="text-xs text-muted">Listen back   keep it only if the take is clean.</p>
             </div>
           ) : (
             <p className="py-6 text-center text-sm text-muted">
-              Speak naturally, as you would on the street or at home — not “radio voice”.
+              Speak naturally, as you would on the street or at home   not “radio voice”.
             </p>
           )}
         </div>

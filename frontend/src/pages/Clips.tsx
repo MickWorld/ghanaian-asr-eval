@@ -67,7 +67,7 @@ export default function ClipsPage() {
         }`}
       />
 
-      {/* Orthography bar — stays visible while typing (mousedown avoids stealing focus) */}
+      {/* Orthography bar   stays visible while typing (mousedown avoids stealing focus) */}
       <div className="sticky top-0 z-10 mb-5 flex flex-wrap items-center gap-1.5 rounded-xl border border-hairline bg-surface/95 p-2 backdrop-blur">
         <span className="px-2 text-xs text-muted">Insert:</span>
         {SPECIAL_CHARS.map((ch) => (
@@ -88,7 +88,7 @@ export default function ClipsPage() {
       {clips.length === 0 ? (
         <EmptyState
           title="No clips yet"
-          hint="Record clips on the Record page — they will appear here for transcription."
+          hint="Record clips on the Record page   they will appear here for transcription."
         />
       ) : (
         <div className="space-y-3">
@@ -118,7 +118,7 @@ export default function ClipsPage() {
                 <audio src={api.clipAudioUrl(clip.id)} controls preload="none" className="h-10 w-full md:w-72 shrink-0" />
                 <textarea
                   value={drafts[clip.id] ?? ""}
-                  placeholder="Type exactly what was said — every word, in the orthography you intend as ground truth…"
+                  placeholder="Type exactly what was said   every word, in the orthography you intend as ground truth…"
                   onChange={(e) => setDrafts((d) => ({ ...d, [clip.id]: e.target.value }))}
                   onFocus={(e) => { focusedRef.current = { id: clip.id, el: e.currentTarget }; }}
                   onBlur={() => save(clip)}
@@ -135,7 +135,7 @@ export default function ClipsPage() {
 
       {clips.length > 0 && missing === 0 && (
         <p className="mt-6 rounded-lg border border-good/30 bg-good/5 px-4 py-3 text-sm text-ink-2">
-          References complete — you can now launch an evaluation on the{" "}
+          References complete   you can now launch an evaluation on the{" "}
           <a href="/runs" className="text-accent underline-offset-2 hover:underline">Runs page</a>.
         </p>
       )}

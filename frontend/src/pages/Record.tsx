@@ -136,7 +136,7 @@ export default function RecordPage() {
               value={newTopic}
               onChange={(e) => setNewTopic(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addPrompt()}
-              placeholder={`New ${LANGUAGE_LABEL[tab]} topic — what should be said?`}
+              placeholder={`New ${LANGUAGE_LABEL[tab]} topic   what should be said?`}
               className="min-w-60 flex-1 rounded-lg border border-hairline bg-page px-3 py-2 text-sm outline-none placeholder:text-muted focus:border-accent"
             />
             <Button onClick={addPrompt} disabled={!newTopic.trim()}>Add</Button>
@@ -153,14 +153,14 @@ export default function RecordPage() {
 
       {doneCount === byTab.length && byTab.length > 0 && (
         <p className="mt-6 rounded-lg border border-good/30 bg-good/5 px-4 py-3 text-sm text-ink-2">
-          All {LANGUAGE_LABEL[tab]} prompts recorded — next, type the references on the{" "}
+          All {LANGUAGE_LABEL[tab]} prompts recorded   next, type the references on the{" "}
           <a href="/clips" className="text-accent underline-offset-2 hover:underline">Clips page</a>.
         </p>
       )}
 
       {recording && (
         <Recorder
-          title={recording === "free" ? `Free recording (${LANGUAGE_LABEL[tab]})` : `Record — ${LANGUAGE_LABEL[tab]}`}
+          title={recording === "free" ? `Free recording (${LANGUAGE_LABEL[tab]})` : `Record   ${LANGUAGE_LABEL[tab]}`}
           subtitle={recording === "free"
             ? "Say anything natural in this language; you'll transcribe it afterwards."
             : recording.text}

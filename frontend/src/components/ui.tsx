@@ -88,6 +88,6 @@ export function PageHeader({ title, sub, right }: { title: string; sub?: string;
 }
 
 export function pct(v: number | null | undefined): string {
-  if (v == null) return "—";
+  if (v == null) return " ";
   return `${(v * 100).toFixed(1)}%`;
 }

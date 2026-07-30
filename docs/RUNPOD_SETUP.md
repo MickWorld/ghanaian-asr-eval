@@ -2,72 +2,94 @@
 
 The workbench runs fully on your PC's CPU. Use RunPod when you want
 **Whisper large-v3** (much better on low-resource/accented speech) or faster
-MMS runs. Serverless billing is per-second   evaluating ~30 short clips
+MMS runs. Serverless billing is per-second - evaluating ~30 short clips
 typically costs **well under $1**.
 
-You need: a [runpod.io](https://www.runpod.io) account, ~$10 credit, and a
-[Docker Hub](https://hub.docker.com) account (free) to host the worker image.
+There are two independent pieces. Do the first one only, unless you also
+want MMS on GPU:
 
-## 1. Build and push the worker image
+| What | How | Difficulty |
+| --- | --- | --- |
+| **Whisper** (all sizes incl. large-v3) | One-click Hub template | Easy, 5 minutes |
+| **MMS** (aka/ewe adapters) | This repo's custom worker | Medium, needs GitHub |
 
-On any machine with Docker (Docker Desktop on Windows works; the image is
-~18 GB because both models are baked in):
+> **Warning - wrong template trap:** do NOT deploy Whisper through a
+> **vLLM** quick-deploy. vLLM serves whisper as a text model and its RunPod
+> wrapper has no audio route, so transcription requests fail with
+> `BadRequestError` / "Invalid route". Use the **Faster Whisper** worker
+> template instead.
 
-```bash
-cd worker
-docker build -t YOUR_DOCKERHUB_USER/ghana-asr-worker:v1 .
-docker push YOUR_DOCKERHUB_USER/ghana-asr-worker:v1
-```
+## Part 1 - Whisper via the official image (easy)
 
-> No Docker locally? Use RunPod's GitHub integration instead: push this repo
-> to GitHub, then in RunPod choose **Serverless → New Endpoint → GitHub Repo**,
-> point it at the repo with `worker/Dockerfile` as the Dockerfile path, and
-> RunPod builds the image for you.
-
-## 2. Create the serverless endpoint
+> Stay in **Serverless**. Do NOT create a Pod - pods bill per hour even
+> while idle, and this app cannot talk to them.
 
 1. RunPod console → **Serverless** → **New Endpoint**.
-2. Container image: `YOUR_DOCKERHUB_USER/ghana-asr-worker:v1`.
-3. GPU: **24 GB (e.g. RTX 4090 / L4 / A5000)** is plenty; 16 GB also works.
-4. Workers: min **0** (scale to zero = pay nothing while idle), max **3**
-   (the backend sends up to 4 clips in parallel).
-5. Container disk: **25 GB** (the image holds both models).
-6. Idle timeout: 60s or more   keeps the worker warm between clips of a run.
-7. Create, then copy the **Endpoint ID** from the endpoint page.
+2. Choose the **Docker image** source option and enter:
+   `runpod/ai-api-faster-whisper:1.0.10`
+   (If the Hub search shows "Faster Whisper" by runpod-workers as a
+   *serverless* repo, that's the same thing - either works.)
+3. Settings: tick **several GPU types** (RTX 4090 / L4 / A5000 / 4000 Ada -
+   anything 16-24 GB), min workers **0**, max workers **3**, idle timeout
+   **60 s**. If only one GPU type is ticked and it's unavailable, workers
+   show `throttled` and jobs sit in queue forever.
+4. Copy the **Endpoint ID** from the endpoint page into `.env`:
 
-## 3. Get an API key
+   ```text
+   RUNPOD_API_KEY=rpa_...          (Settings → API Keys → Create)
+   RUNPOD_ENDPOINT_ID=<the id>
+   RUNPOD_WHISPER_WORKER=faster-whisper
+   ```
 
-RunPod console → **Settings** → **API Keys** → create a key (Read/Write).
+5. Restart the backend. On the Runs page, pick Whisper → large-v3 →
+   RunPod GPU. First job after idle takes 1-3 min (cold start); after that,
+   seconds per clip.
 
-## 4. Configure the workbench
+## Part 2 - MMS via the custom worker (optional)
 
-Copy `.env.example` to `.env` in the project root and fill in:
+MMS must switch language adapters per clip (`aka` for Twi and code-switch,
+`ewe` for Ewe). No stock template does this - it needs `worker/handler.py`
+from this repo.
 
-```
-RUNPOD_API_KEY=rpa_xxxxxxxxxxxxxxxx
-RUNPOD_ENDPOINT_ID=abc123def456
-```
+1. Push this repository to GitHub (public or private).
+2. RunPod console → **Serverless** → **New Endpoint** → **GitHub Repo** →
+   authorize and select your repo. Set the Dockerfile path to
+   `worker/Dockerfile`. RunPod builds the image for you (~20-30 min first
+   time - both models are baked in).
+3. Same GPU settings as Part 1; container disk **25 GB**.
+4. Copy that endpoint's ID into `.env`:
 
-Restart the backend. The Runs page will now show the **RunPod GPU** engine as
-available, and `whisper large-v3` becomes selectable. First request after idle
-takes ~1–3 min (cold start pulls the worker up); after that, seconds per clip.
+   ```text
+   RUNPOD_MMS_ENDPOINT_ID=<the id>
+   ```
+
+5. Restart the backend - the RunPod GPU button now lights up for Meta MMS
+   too.
+
+(The custom worker also handles Whisper. If you prefer one endpoint for
+everything, point `RUNPOD_ENDPOINT_ID` at it and set
+`RUNPOD_WHISPER_WORKER=custom`.)
 
 ## Cost notes
 
-- Serverless GPU (~24 GB class) ≈ $0.00044/s only while a worker is active.
-- A full pass (Whisper large-v3 + MMS over 30 clips) ≈ a few minutes of GPU
-  time ≈ **$0.10–0.50**, plus cold starts.
-- Set max workers to 1 if you prefer slower-but-cheapest sequential runs.
-- Your Docker Hub image is public by default; it contains only open models
-  and this repo's handler   no secrets. Keep your API key only in `.env`.
+- Serverless GPU (~24 GB class) is roughly $0.0004-0.0007/s, billed only
+  while a worker is active.
+- A full pass (Whisper large-v3 + MMS over 30 clips) is a few minutes of GPU
+  time - **$0.10-0.50** plus cold starts.
+- Min workers 0 means you pay nothing while idle.
+- Keep your API key only in `.env` (git-ignored). If it leaks, revoke it in
+  Settings → API Keys.
 
 ## Troubleshooting
 
-- **Job stuck IN_QUEUE then times out**   endpoint has 0 max workers, no
-  GPUs of the chosen type available, or the image failed to pull (check the
-  endpoint's Logs tab).
-- **`Worker error: ...` in the UI**   the handler returned an error; the exact
-  message is stored on the failed clip in the Runs page. CUDA OOM → pick a
-  bigger GPU or set Whisper model to `medium`.
-- **First clip slow, rest fast**   normal: model load on cold start. Raise
-  idle timeout to keep workers warm during a run.
+- **Jobs stuck IN_QUEUE, health shows `throttled`** - the chosen GPU type
+  has no capacity. Edit the endpoint and tick more GPU types.
+- **`BadRequestError` / "Invalid route" on every clip** - you deployed a
+  vLLM template. Delete it and deploy **Faster Whisper** (see warning above).
+- **403 Forbidden when the app calls the endpoint** - the endpoint ID is
+  wrong (copy it from the endpoint's page header) or your API key is
+  restricted to different endpoints.
+- **First clip slow, rest fast** - cold start; raise idle timeout to keep
+  the worker warm through a run.
+- **CUDA OOM on the custom worker** - pick a bigger GPU, or use Whisper
+  medium instead of large-v3.

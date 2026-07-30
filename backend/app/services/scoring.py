@@ -1,7 +1,7 @@
 """WER / CER scoring and word-level alignment for the diff explorer.
 
 Normalization: NFC, lowercase, strip everything that is not a letter, digit,
-apostrophe, or whitespace — Unicode-aware so Ghanaian orthography
+apostrophe, or whitespace   Unicode-aware so Ghanaian orthography
 (ɛ, ɔ, ƒ, ɖ, ŋ, x, ...) survives intact.
 
 WER and CER are computed from a single Levenshtein alignment

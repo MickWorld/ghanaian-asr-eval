@@ -37,7 +37,7 @@ def create_run(body: RunIn):
         else:
             clips = conn.execute("SELECT id FROM clips").fetchall()
         if not clips:
-            raise HTTPException(422, "no clips to transcribe — record some first")
+            raise HTTPException(422, "no clips to transcribe   record some first")
         cur = conn.execute(
             "INSERT INTO runs (system, model, engine) VALUES (?, ?, ?)",
             (body.system, body.model, body.engine),

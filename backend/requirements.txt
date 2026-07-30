@@ -1,5 +1,5 @@
 # Ghana ASR Workbench backend.
-# Everything runs on a normal PC (CPU). RunPod is optional — see docs/RUNPOD_SETUP.md.
+# Everything runs on a normal PC (CPU). RunPod is optional   see docs/RUNPOD_SETUP.md.
 
 fastapi
 uvicorn[standard]

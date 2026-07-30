@@ -85,10 +85,10 @@ def export_findings():
     """Generate a Markdown findings report from all completed runs."""
     scored = _scored_runs()
     if not scored:
-        raise HTTPException(422, "nothing to export — complete a run with references first")
+        raise HTTPException(422, "nothing to export   complete a run with references first")
 
     lines = [
-        "# Ghanaian ASR Evaluation — Findings",
+        "# Ghanaian ASR Evaluation   Findings",
         "",
         "Automated export from the ASR Workbench. WER/CER on self-recorded Twi, Ewe,",
         "and Twi–English code-switched clips, scored against native-speaker references.",

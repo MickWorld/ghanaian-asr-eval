@@ -1,4 +1,4 @@
-"""Ghana ASR Workbench — FastAPI backend.
+"""Ghana ASR Workbench   FastAPI backend.
 
 Run:  uvicorn app.main:app --reload --port 8000   (from backend/)
 """

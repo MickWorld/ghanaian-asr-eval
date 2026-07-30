@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/clips", tags=["clips"])
 
 
 def next_stem(conn, language: str) -> str:
-    """twi_01, twi_02, ... — scan existing filenames for the highest index."""
+    """twi_01, twi_02, ...   scan existing filenames for the highest index."""
     rows = conn.execute(
         "SELECT filename FROM clips WHERE language = ?", (language,)
     ).fetchall()

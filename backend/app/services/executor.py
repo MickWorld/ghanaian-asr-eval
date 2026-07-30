@@ -2,7 +2,7 @@
 
 One thread per run; each clip's transcription status is written to SQLite as
 it progresses, so the frontend can poll GET /api/runs/{id} for live progress.
-For RunPod runs, clips are processed with a small worker pool — serverless
+For RunPod runs, clips are processed with a small worker pool   serverless
 workers scale out, so parallel requests finish much faster.
 """
 
@@ -66,7 +66,7 @@ def _execute(run_id: int) -> None:
                        WHERE id = ?""",
                     (result["text"], result["meta"], latency, item["tid"]),
                 )
-        except Exception as exc:  # noqa: BLE001 — record any failure per clip
+        except Exception as exc:  # noqa: BLE001   record any failure per clip
             latency = int((time.monotonic() - started) * 1000)
             with connect() as conn:
                 conn.execute(
@@ -80,7 +80,7 @@ def _execute(run_id: int) -> None:
             with ThreadPoolExecutor(max_workers=4) as pool:
                 list(pool.map(process, items))
         else:
-            # Local CPU: strictly sequential — models share one machine.
+            # Local CPU: strictly sequential   models share one machine.
             for item in items:
                 process(item)
     finally:

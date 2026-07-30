@@ -1,4 +1,4 @@
-"""Prompt list CRUD — the sentences/topics shown on the Record page."""
+"""Prompt list CRUD   the sentences/topics shown on the Record page."""
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel

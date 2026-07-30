@@ -11,7 +11,7 @@ Two interchangeable backends behind one function signature:
   without them; install backend/requirements-local.txt to enable.
 
 language_group is the clip's group: 'twi' | 'ewe' | 'cs'. MMS has no
-code-switching mode, so 'cs' clips use the Akan adapter — how it fails there
+code-switching mode, so 'cs' clips use the Akan adapter   how it fails there
 is part of what we measure.
 """
 
